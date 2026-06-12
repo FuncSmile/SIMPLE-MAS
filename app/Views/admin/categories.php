@@ -1,11 +1,21 @@
 <?php $GLOBALS['ci_no_footer'] = true; ?>
 <!-- ── MANAJEMEN KATEGORI ── -->
-<div style="display:flex; height:calc(100vh - 44px); overflow:hidden;">
+<style>
+@media (max-width: 767px) {
+    #adminShell { display: block !important; height: auto !important; overflow: visible !important; }
+    #adminMain  { height: auto !important; overflow: visible !important; }
+    #catPad     { padding: 20px 16px 80px !important; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    #catPad { padding: 24px 20px 56px !important; }
+}
+</style>
+<div id="adminShell" style="display:flex; height:calc(100vh - 44px); overflow:hidden;">
 
     <?= view('admin/sidebar', ['currentPage' => 'categories']) ?>
 
-    <div style="flex:1; min-width:0; overflow-y:auto; background:#f5f5f7;">
-    <div style="max-width:1100px; margin:0 auto; padding:32px 32px 56px;">
+    <div id="adminMain" style="flex:1; min-width:0; overflow-y:auto; background:#f5f5f7;">
+    <div id="catPad" style="max-width:1100px; margin:0 auto; padding:32px 32px 56px;">
 
         <div style="margin-bottom:28px;">
             <p style="font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#0066cc; margin:0 0 4px;">Admin Panel</p>

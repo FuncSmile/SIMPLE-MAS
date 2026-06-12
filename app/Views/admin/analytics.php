@@ -1,11 +1,23 @@
 <?php $GLOBALS['ci_no_footer'] = true; ?>
 <!-- ── ADMIN ANALYTICS ── -->
-<div style="display:flex; height:calc(100vh - 44px); overflow:hidden;">
+<style>
+@media (max-width: 767px) {
+    #adminShell   { display: block !important; height: auto !important; overflow: visible !important; }
+    #adminMain    { height: auto !important; overflow: visible !important; }
+    #analyticsPad { padding: 20px 16px 80px !important; }
+    #chartsGrid   { grid-template-columns: 1fr !important; }
+    #heatmapContainer { height: 260px !important; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    #analyticsPad { padding: 24px 20px 56px !important; }
+}
+</style>
+<div id="adminShell" style="display:flex; height:calc(100vh - 44px); overflow:hidden;">
 
     <?= view('admin/sidebar', ['currentPage' => 'analytics']) ?>
 
-    <div style="flex:1; min-width:0; overflow-y:auto; background:#f5f5f7;">
-        <div style="max-width:1200px; margin:0 auto; padding:32px 32px 56px;">
+    <div id="adminMain" style="flex:1; min-width:0; overflow-y:auto; background:#f5f5f7;">
+        <div id="analyticsPad" style="max-width:1200px; margin:0 auto; padding:32px 32px 56px;">
 
             <!-- Page header -->
             <div style="margin-bottom:28px;">
@@ -14,7 +26,7 @@
             </div>
 
             <!-- Charts row -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div id="chartsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
 
                 <div style="background:#fff; border:1px solid #e0e0e0; border-radius:18px; padding:20px 24px;">
                     <h3 style="font-size:15px; font-weight:600; letter-spacing:-0.224px; color:#1d1d1f; margin:0 0 18px;">Laporan per Kategori</h3>
