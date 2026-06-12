@@ -17,7 +17,6 @@
     #hero-content { padding: 0 28px 56px !important; }
     .home-inner   { padding: 0 28px !important; }
 }
-</style>
 @keyframes scrollDot {
     0%,100% { transform:translateX(-50%) translateY(0); opacity:1; }
     50%      { transform:translateX(-50%) translateY(10px); opacity:0.3; }
