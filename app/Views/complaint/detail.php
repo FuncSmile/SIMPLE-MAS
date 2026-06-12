@@ -1,10 +1,10 @@
 <?php
 $c = $complaint;
-$statusColors = [
-    'pending'     => 'bg-yellow-100 text-yellow-800',
-    'in_progress' => 'bg-blue-100 text-blue-800',
-    'resolved'    => 'bg-green-100 text-green-800',
-    'rejected'    => 'bg-red-100 text-red-800',
+$statusClass = [
+    'pending'     => 'status-pending',
+    'in_progress' => 'status-in_progress',
+    'resolved'    => 'status-resolved',
+    'rejected'    => 'status-rejected',
 ];
 $statusLabels = [
     'pending'     => 'Pending',
@@ -14,118 +14,149 @@ $statusLabels = [
 ];
 ?>
 
-<div class="max-w-4xl mx-auto py-8 px-4">
-    <a href="/dashboard" class="text-primary hover:underline text-sm mb-4 inline-block">&larr; Kembali ke Peta</a>
+<div style="background:#f5f5f7; min-height:calc(100vh - 44px); padding:48px 20px;">
+    <div style="max-width:860px; margin:0 auto;">
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden mt-4">
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold text-gray-800">Pengaduan #<?= $c['id'] ?></h2>
-                <span class="px-3 py-1 rounded-full text-sm font-semibold <?= $statusColors[$c['status']] ?>">
+        <!-- Back link -->
+        <a href="/dashboard" style="color:#0066cc; font-size:14px; letter-spacing:-0.224px; text-decoration:none; display:inline-block; margin-bottom:24px;"
+           onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+            &larr; Kembali ke Peta
+        </a>
+
+        <!-- Main card -->
+        <div class="card-utility" style="margin-bottom:20px;">
+
+            <!-- Header row -->
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
+                <h1 style="font-size:28px; font-weight:600; line-height:1.14; letter-spacing:0.196px; color:#1d1d1f; margin:0;">
+                    Pengaduan #<?= $c['id'] ?>
+                </h1>
+                <span class="status-pill <?= $statusClass[$c['status']] ?? 'status-pending' ?>">
                     <?= $statusLabels[$c['status']] ?>
                 </span>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="space-y-4">
+            <!-- Details grid -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div style="display:flex; flex-direction:column; gap:16px;">
                     <div>
-                        <span class="text-sm text-gray-500">Kategori</span>
-                        <p class="font-semibold text-gray-800"><?= esc($c['category_name']) ?></p>
+                        <p style="font-size:12px; font-weight:400; letter-spacing:-0.12px; color:#7a7a7a; margin:0 0 2px;">Kategori</p>
+                        <p style="font-size:17px; font-weight:600; letter-spacing:-0.374px; color:#1d1d1f; margin:0;"><?= esc($c['category_name']) ?></p>
                     </div>
                     <div>
-                        <span class="text-sm text-gray-500">Instansi</span>
-                        <p class="text-gray-700"><?= esc($c['agency_name'] ?? '-') ?></p>
+                        <p style="font-size:12px; font-weight:400; letter-spacing:-0.12px; color:#7a7a7a; margin:0 0 2px;">Instansi</p>
+                        <p style="font-size:17px; font-weight:400; letter-spacing:-0.374px; color:#1d1d1f; margin:0;"><?= esc($c['agency_name'] ?? '-') ?></p>
                     </div>
                     <div>
-                        <span class="text-sm text-gray-500">Pelapor</span>
-                        <p class="text-gray-700"><?= esc($c['reporter_name']) ?></p>
+                        <p style="font-size:12px; font-weight:400; letter-spacing:-0.12px; color:#7a7a7a; margin:0 0 2px;">Pelapor</p>
+                        <p style="font-size:17px; font-weight:400; letter-spacing:-0.374px; color:#1d1d1f; margin:0;"><?= esc($c['reporter_name']) ?></p>
                     </div>
                     <div>
-                        <span class="text-sm text-gray-500">Tanggal</span>
-                        <p class="text-gray-700"><?= date('d M Y H:i', strtotime($c['created_at'])) ?></p>
+                        <p style="font-size:12px; font-weight:400; letter-spacing:-0.12px; color:#7a7a7a; margin:0 0 2px;">Tanggal</p>
+                        <p style="font-size:17px; font-weight:400; letter-spacing:-0.374px; color:#1d1d1f; margin:0;"><?= date('d M Y H:i', strtotime($c['created_at'])) ?></p>
                     </div>
                     <div>
-                        <span class="text-sm text-gray-500">Lokasi</span>
-                        <p class="text-gray-700"><?= esc($c['lat']) ?>, <?= esc($c['lng']) ?></p>
+                        <p style="font-size:12px; font-weight:400; letter-spacing:-0.12px; color:#7a7a7a; margin:0 0 2px;">Koordinat</p>
+                        <p style="font-size:14px; font-weight:400; letter-spacing:-0.224px; color:#7a7a7a; margin:0;"><?= esc($c['lat']) ?>, <?= esc($c['lng']) ?></p>
                     </div>
                 </div>
                 <div>
-                    <span class="text-sm text-gray-500">Deskripsi</span>
-                    <p class="text-gray-800 mt-1 whitespace-pre-wrap"><?= esc($c['description']) ?></p>
+                    <p style="font-size:12px; font-weight:400; letter-spacing:-0.12px; color:#7a7a7a; margin:0 0 8px;">Deskripsi</p>
+                    <p style="font-size:17px; font-weight:400; line-height:1.47; letter-spacing:-0.374px; color:#1d1d1f; margin:0; white-space:pre-wrap;"><?= esc($c['description']) ?></p>
                 </div>
             </div>
 
-            <!-- Upvote -->
-            <div class="mt-6 pt-4 border-t flex items-center gap-4">
+            <!-- Upvote row -->
+            <div style="border-top:1px solid #e0e0e0; padding-top:20px; display:flex; align-items:center; gap:16px;">
                 <button id="upvoteBtn"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition <?= $hasUpvoted ? 'bg-blue-100 text-blue-700 cursor-default' : 'bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-700' ?>"
+                    onclick="doUpvote(<?= $c['id'] ?>)"
                     <?= $hasUpvoted ? 'disabled' : '' ?>
-                    onclick="doUpvote(<?= $c['id'] ?>)">
+                    class="btn-pill-ghost"
+                    style="<?= $hasUpvoted ? 'opacity:.5; cursor:default;' : '' ?> font-size:14px; letter-spacing:-0.224px; padding:8px 18px; display:flex; align-items:center; gap:6px;">
                     <span id="upvoteIcon">&#128077;</span>
-                    <span id="upvoteCount"><?= $c['upvotes'] ?></span> Upvote
+                    <span id="upvoteCount"><?= $c['upvotes'] ?></span>&nbsp;Upvote
                 </button>
-                <span id="upvoteMsg" class="text-sm"></span>
+                <span id="upvoteMsg" style="font-size:14px; letter-spacing:-0.224px;"></span>
             </div>
         </div>
 
-        <!-- Before / After Photos -->
-        <div class="border-t">
-            <div class="grid md:grid-cols-2 divide-x">
-                <div class="p-6">
-                    <h3 class="font-semibold text-gray-700 mb-3">&#128247; Foto Sebelum</h3>
+        <!-- Photos card -->
+        <div class="card-utility" style="margin-bottom:20px; padding:0; overflow:hidden;">
+            <div class="grid md:grid-cols-2" style="border-top:none;">
+                <!-- Before photo -->
+                <div style="padding:24px; border-right:1px solid #e0e0e0;">
+                    <p style="font-size:14px; font-weight:600; letter-spacing:-0.224px; color:#1d1d1f; margin:0 0 12px;">&#128247; Foto Sebelum</p>
                     <?php if ($c['photo_before']): ?>
-                        <img src="/uploads/<?= esc($c['photo_before']) ?>" alt="Foto Sebelum" class="w-full rounded-lg shadow-sm">
+                        <img src="/uploads/<?= esc($c['photo_before']) ?>" alt="Foto Sebelum"
+                             style="width:100%; border-radius:8px;" class="product-shadow">
                     <?php else: ?>
-                        <div class="bg-gray-100 rounded-lg h-48 flex items-center justify-center text-gray-400">Tidak ada foto</div>
+                        <div style="background:#f5f5f7; border-radius:8px; height:160px; display:flex; align-items:center; justify-content:center;">
+                            <span style="font-size:14px; color:#7a7a7a; letter-spacing:-0.224px;">Tidak ada foto</span>
+                        </div>
                     <?php endif; ?>
                 </div>
-                <div class="p-6">
-                    <h3 class="font-semibold text-gray-700 mb-3">&#128248; Foto Sesudah</h3>
-                    <?php if (! empty($c['photo_after'])): ?>
-                        <img src="/uploads/<?= esc($c['photo_after']) ?>" alt="Foto Sesudah" class="w-full rounded-lg shadow-sm">
+                <!-- After photo -->
+                <div style="padding:24px;">
+                    <p style="font-size:14px; font-weight:600; letter-spacing:-0.224px; color:#1d1d1f; margin:0 0 12px;">&#128248; Foto Sesudah</p>
+                    <?php if (!empty($c['photo_after'])): ?>
+                        <img src="/uploads/<?= esc($c['photo_after']) ?>" alt="Foto Sesudah"
+                             style="width:100%; border-radius:8px;" class="product-shadow">
                     <?php else: ?>
-                        <div class="bg-gray-100 rounded-lg h-48 flex items-center justify-center text-gray-400">
-                            <?= $c['status'] === 'resolved' ? 'Menunggu unggahan' : 'Belum selesai' ?>
+                        <div style="background:#f5f5f7; border-radius:8px; height:160px; display:flex; align-items:center; justify-content:center;">
+                            <span style="font-size:14px; color:#7a7a7a; letter-spacing:-0.224px;">
+                                <?= $c['status'] === 'resolved' ? 'Menunggu unggahan' : 'Belum selesai' ?>
+                            </span>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Map -->
-    <div class="mt-6 bg-white shadow-md rounded-lg overflow-hidden">
-        <div id="detailMap" class="w-full h-64"></div>
-    </div>
+        <!-- Map card -->
+        <div class="card-utility" style="padding:0; overflow:hidden; margin-bottom:20px;">
+            <div id="detailMap" style="width:100%; height:240px;"></div>
+        </div>
 
-    <!-- Nearby Complaints -->
-    <?php if (! empty($nearbyComplaints)): ?>
-        <div class="mt-6 bg-white shadow-md rounded-lg p-6">
-            <h3 class="font-semibold text-gray-800 mb-4">&#128204; Laporan Terdekat</h3>
-            <div class="space-y-3">
+        <!-- Nearby complaints -->
+        <?php if (!empty($nearbyComplaints)): ?>
+        <div class="card-utility">
+            <h3 style="font-size:17px; font-weight:600; letter-spacing:-0.374px; color:#1d1d1f; margin:0 0 16px;">
+                &#128204; Laporan Terdekat
+            </h3>
+            <div style="display:flex; flex-direction:column; gap:0;">
                 <?php foreach ($nearbyComplaints as $n): ?>
                     <?php if ($n['id'] != $c['id']): ?>
-                        <div class="flex items-center justify-between border-b pb-2">
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #e0e0e0; gap:12px;">
                             <div>
-                                <a href="/complaint/<?= $n['id'] ?>" class="text-primary hover:underline font-semibold">#<?= $n['id'] ?> - <?= esc($n['category_name']) ?></a>
-                                <p class="text-xs text-gray-500">~<?= round($n['distance'] ?? 0) ?>m &bull; <?= esc($n['reporter_name']) ?></p>
+                                <a href="/complaint/<?= $n['id'] ?>" style="color:#0066cc; font-size:17px; font-weight:600; letter-spacing:-0.374px; text-decoration:none;"
+                                   onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                    #<?= $n['id'] ?> &mdash; <?= esc($n['category_name']) ?>
+                                </a>
+                                <p style="font-size:12px; color:#7a7a7a; letter-spacing:-0.12px; margin:2px 0 0;">
+                                    ~<?= round($n['distance'] ?? 0) ?>m &bull; <?= esc($n['reporter_name']) ?>
+                                </p>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-xs font-semibold <?= $statusColors[$n['status']] ?>"><?= $statusLabels[$n['status']] ?></span>
+                            <span class="status-pill <?= $statusClass[$n['status']] ?? 'status-pending' ?>">
+                                <?= $statusLabels[$n['status']] ?>
+                            </span>
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         </div>
-    <?php endif; ?>
+        <?php endif; ?>
+
+    </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 <script>
 const detailMap = L.map('detailMap').setView([<?= $c['lat'] ?>, <?= $c['lng'] ?>], 16);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OSM',
-    maxZoom: 19
+    attribution: '&copy; OSM', maxZoom: 19
 }).addTo(detailMap);
 L.marker([<?= $c['lat'] ?>, <?= $c['lng'] ?>]).addTo(detailMap)
     .bindPopup('<b><?= esc($c['category_name']) ?></b><br><?= esc(substr($c['description'], 0, 80)) ?>...').openPopup();
@@ -133,30 +164,65 @@ L.marker([<?= $c['lat'] ?>, <?= $c['lng'] ?>]).addTo(detailMap)
 <?php foreach ($nearbyComplaints as $n): ?>
 <?php if ($n['id'] != $c['id']): ?>
 L.circleMarker([<?= $n['lat'] ?>, <?= $n['lng'] ?>], {
-    radius: 6, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.5
-}).addTo(detailMap).bindPopup('<a href="/complaint/<?= $n['id'] ?>">#<?= $n['id'] ?> - <?= esc($n['category_name']) ?></a>');
+    radius: 6, color: '#0066cc', fillColor: '#0066cc', fillOpacity: 0.5
+}).addTo(detailMap).bindPopup('<a href="/complaint/<?= $n['id'] ?>">#<?= $n['id'] ?> &mdash; <?= esc($n['category_name']) ?></a>');
 <?php endif; ?>
 <?php endforeach; ?>
 
+var _csrfName     = '<?= csrf_token() ?>';
+var _csrfCookieN  = '<?= config("Security")->cookieName ?? "csrf_cookie_name" ?>';
+var _csrfFallback = '<?= csrf_hash() ?>';
+function getCsrf() {
+    try {
+        var m = document.cookie.match(new RegExp('(?:^|; )' + _csrfCookieN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)'));
+        return m ? decodeURIComponent(m[1]) : _csrfFallback;
+    } catch (e) { return _csrfFallback; }
+}
+
 function doUpvote(complaintId) {
+    var btn = document.getElementById('upvoteBtn');
+    var msg = document.getElementById('upvoteMsg');
+
+    btn.disabled = true;
+    msg.textContent = '';
+
     fetch('/api/complaint/upvote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
-        body: 'complaint_id=' + complaintId + '&<?= csrf_token() ?>=<?= csrf_hash() ?>'
+        method:  'POST',
+        headers: {
+            'Content-Type':     'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'complaint_id=' + encodeURIComponent(complaintId)
+            + '&' + encodeURIComponent(_csrfName) + '=' + encodeURIComponent(getCsrf())
     })
-    .then(r => r.json())
-    .then(data => {
+    .then(function (r) {
+        if (!r.ok) throw new Error('HTTP_' + r.status);
+        return r.json();
+    })
+    .then(function (data) {
         if (data.success) {
             document.getElementById('upvoteCount').textContent = data.upvotes;
-            document.getElementById('upvoteBtn').classList.add('bg-blue-100', 'text-blue-700', 'cursor-default');
-            document.getElementById('upvoteBtn').classList.remove('hover:bg-blue-50');
-            document.getElementById('upvoteBtn').disabled = true;
-            document.getElementById('upvoteMsg').textContent = 'Upvote berhasil!';
-            document.getElementById('upvoteMsg').className = 'text-sm text-green-600';
+            btn.style.opacity = '.5';
+            btn.style.cursor  = 'default';
+            msg.textContent   = 'Upvote berhasil!';
+            msg.style.color   = '#10b981';
         } else {
-            document.getElementById('upvoteMsg').textContent = data.message;
-            document.getElementById('upvoteMsg').className = 'text-sm text-red-600';
+            btn.disabled      = false;
+            msg.textContent   = data.message || 'Gagal memberikan upvote.';
+            msg.style.color   = '#ef4444';
         }
+    })
+    .catch(function (err) {
+        btn.disabled    = false;
+        msg.style.color = '#ef4444';
+        if (err.message && err.message.indexOf('HTTP_401') !== -1) {
+            msg.textContent = 'Silakan login untuk memberikan upvote.';
+        } else if (err.message && err.message.indexOf('HTTP_') !== -1) {
+            msg.textContent = 'Sesi habis, muat ulang halaman.';
+        } else {
+            msg.textContent = 'Terjadi kesalahan jaringan. Coba lagi.';
+        }
+        console.error('doUpvote error:', err);
     });
 }
 </script>
