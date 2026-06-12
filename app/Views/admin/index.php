@@ -12,17 +12,33 @@
 .top-item { padding:12px 0; border-bottom:1px solid #f0f0f0; display:flex; align-items:flex-start; gap:10px; cursor:pointer; transition:background 0.12s; border-radius:6px; }
 .top-item:hover { background:#f5f5f7; padding:12px 8px; margin:0 -8px; }
 .top-item:last-child { border-bottom:none; }
+
+/* ── Responsive ── */
+@media (max-width: 767px) {
+    #adminShell { display: block !important; height: auto !important; overflow: visible !important; }
+    #adminMain  { height: auto !important; overflow: visible !important; }
+    #adminPad   { padding: 20px 16px 80px !important; }
+    #kpiGrid    { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+    #mapTopGrid { grid-template-columns: 1fr !important; }
+    #chartsGrid { grid-template-columns: 1fr !important; }
+    #adminMap   { height: 240px !important; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    #adminPad   { padding: 24px 20px 56px !important; }
+    #kpiGrid    { grid-template-columns: repeat(3, 1fr) !important; }
+    #mapTopGrid { grid-template-columns: 1fr 300px !important; }
+}
 </style>
 
 <!-- ── ADMIN SHELL: sidebar + scrollable main ── -->
-<div style="display:flex; height:calc(100vh - 44px); overflow:hidden;">
+<div id="adminShell" style="display:flex; height:calc(100vh - 44px); overflow:hidden;">
 
     <!-- Sidebar (shared partial) -->
     <?= view('admin/sidebar', ['currentPage' => 'dashboard']) ?>
 
     <!-- ── MAIN CONTENT ── -->
-    <div style="flex:1; min-width:0; overflow-y:auto; background:#f5f5f7;">
-        <div style="max-width:1280px; margin:0 auto; padding:32px 32px 56px;">
+    <div id="adminMain" style="flex:1; min-width:0; overflow-y:auto; background:#f5f5f7;">
+        <div id="adminPad" style="max-width:1280px; margin:0 auto; padding:32px 32px 56px;">
 
             <!-- Page header -->
             <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
@@ -36,7 +52,7 @@
             </div>
 
             <!-- ── KPI STATS ── -->
-            <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px;">
+            <div id="kpiGrid" style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px;">
 
                 <div class="kpi-card" style="border-top:3px solid #1d1d1f;">
                     <p class="kpi-num" style="color:#1d1d1f;"><?= $stats['total'] ?? 0 ?></p>
@@ -62,7 +78,7 @@
             </div>
 
             <!-- ── MAP + TOP COMPLAINTS ── -->
-            <div style="display:grid; grid-template-columns:1fr 360px; gap:16px; margin-bottom:16px;">
+            <div id="mapTopGrid" style="display:grid; grid-template-columns:1fr 360px; gap:16px; margin-bottom:16px;">
 
                 <!-- Map card -->
                 <div class="section-card">
@@ -86,7 +102,7 @@
             </div>
 
             <!-- ── CHARTS ROW ── -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div id="chartsGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
 
                 <div class="section-card" style="padding:20px 24px;">
                     <h3 style="font-size:15px; font-weight:600; letter-spacing:-0.224px; color:#1d1d1f; margin:0 0 18px;">Laporan per Kategori</h3>
