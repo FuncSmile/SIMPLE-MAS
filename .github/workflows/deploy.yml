@@ -2,8 +2,8 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [master]       # Ubah ke nama branch utama-mu jika beda
-  workflow_dispatch:       # Bisa trigger manual dari GitHub UI
+    branches: [master]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,22 +12,27 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # ── 1. Checkout kode ──────────────────────────────────────────────
+      # ── 1. Checkout ───────────────────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. Join Tailscale network ─────────────────────────────────────
-      #       Runner mendapat node ephemeral → SSH ke server via 100.x.x.x
+      # ── 2. Join Tailscale network ─────────────────────────────────────────
       - name: Setup Tailscale
         uses: tailscale/github-action@v2
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
 
-      # ── 3. Verifikasi koneksi Tailscale ke server ─────────────────────
+      # ── 3. Verifikasi koneksi ─────────────────────────────────────────────
       - name: Ping server
         run: ping -c 3 ${{ secrets.DEPLOY_HOST }}
 
-      # ── 4. Deploy ─────────────────────────────────────────────────────
+      # ── 4. Deploy ─────────────────────────────────────────────────────────
+      # Struktur server:
+      #   /home/shosha/SIMPLE-MAS              ← git repo (build context)
+      #   /home/shosha/sandbox.id/simple-mas   ← docker-compose.yml + Dockerfile
+      #
+      # Code di-COPY ke image saat build (COPY . . di Dockerfile),
+      # bukan volume mount — jadi harus rebuild image setiap deploy.
       - name: Deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -39,53 +44,48 @@ jobs:
           script: |
             set -e
 
-            echo "──────────────────────────────────────"
-            echo " SIMPEL-MAS DEPLOYMENT"
-            echo " $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "──────────────────────────────────────"
+            echo "══════════════════════════════════════"
+            echo "  SIMPEL-MAS DEPLOYMENT"
+            echo "  $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "══════════════════════════════════════"
 
-            cd ${{ secrets.DEPLOY_PATH }}
-
-            # ── Pull kode terbaru ────────────────────
-            echo "[1/5] Pulling latest code..."
+            # ── [1/4] Pull kode terbaru ───────────────
+            echo "[1/4] Pulling latest code..."
+            cd /home/shosha/SIMPLE-MAS
             git pull origin master
+            echo "      Done."
 
-            # ── Rebuild image PHP-FPM ────────────────
-            # Hanya rebuild service 'app', nginx & mysql tidak tersentuh
-            echo "[2/5] Rebuilding app image..."
+            # ── [2/4] Rebuild image PHP-FPM ───────────
+            # Build context = /home/shosha/SIMPLE-MAS (COPY . .)
+            # Hanya rebuild service 'app', nginx & mysql tidak disentuh
+            echo "[2/4] Rebuilding app image..."
+            cd /home/shosha/sandbox.id/simple-mas
             docker compose build --no-cache app
+            echo "      Done."
 
-            # ── Ganti container app dengan image baru ─
-            # --force-recreate : paksa buat ulang container
+            # ── [3/4] Recreate container ──────────────
+            # --force-recreate : paksa buat ulang container dengan image baru
             # --no-deps        : jangan restart nginx & mysql
-            # -d               : background
-            echo "[3/5] Recreating app container..."
+            echo "[3/4] Recreating app container..."
             docker compose up -d --force-recreate --no-deps app
 
-            # Tunggu container healthy (maks 30 detik)
-            echo "      Waiting for container to be ready..."
-            timeout 30 sh -c '
+            # Tunggu container running (maks 60 detik)
+            echo "      Waiting for container..."
+            timeout 60 sh -c '
               until docker compose ps app | grep -q "Up"; do
-                sleep 2
+                sleep 3
               done
             '
+            echo "      Container is up."
 
-            # ── Composer install di dalam container ──
-            echo "[4/5] Running composer install..."
-            docker compose exec -T app composer install \
-              --no-dev \
-              --optimize-autoloader \
-              --no-interaction
-
-            # ── Migrasi & cache CI4 ──────────────────
-            echo "[5/5] Running migrations and clearing cache..."
+            # ── [4/4] Migrasi & cache ─────────────────
+            # composer install sudah dijalankan saat docker build (RUN composer install di Dockerfile)
+            echo "[4/4] Running migrations and clearing CI4 cache..."
             docker compose exec -T app php spark migrate --all --no-interaction
             docker compose exec -T app php spark cache:clear
 
-            # ── Fix file permissions di writable/ ────
-            docker compose exec -T app chmod -R 777 writable/
-
-            echo "──────────────────────────────────────"
-            echo " DEPLOY COMPLETE"
-            echo "──────────────────────────────────────"
+            echo ""
+            echo "══════════════════════════════════════"
+            echo "  DEPLOY COMPLETE ✓"
+            echo "══════════════════════════════════════"
             docker compose ps
