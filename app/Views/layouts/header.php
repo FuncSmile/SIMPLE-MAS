@@ -174,7 +174,7 @@
             height: 52px;
             position: sticky;
             top: 44px;
-            z-index: 190;
+            z-index: 800; /* above Leaflet's max layer z-index (700) */
             display: flex;
             align-items: center;
         }

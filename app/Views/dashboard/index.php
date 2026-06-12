@@ -11,12 +11,29 @@
 .leaflet-popup-content-wrapper { border-radius:12px !important; padding:0 !important; }
 .leaflet-popup-content { margin:0 !important; }
 
+/* ── Containment fix: give mapPane an explicit z-index so Leaflet layers
+   (z-index 200-700) stay inside its stacking context and can't overlap
+   the sticky sub-nav-frosted (z-index 800) above it. ── */
+#mapPane { position: relative; z-index: 0; }
+
 /* ── Responsive ── */
 @media (max-width: 767px) {
-    /* Filter strip: wrap on small screens */
-    .dash-filter-inner { flex-wrap: wrap !important; height: auto !important; padding: 10px 14px !important; gap: 8px !important; }
-    .dash-filter-inner select { min-width: unset !important; flex: 1 1 130px; }
-    .dash-filter-inner a.btn-pill { flex: 1 1 auto; text-align: center; }
+    /* Filter strip: allow height to grow when items wrap */
+    .sub-nav-frosted  { height: auto !important; overflow: visible !important; }
+    .dash-filter-inner {
+        flex-wrap: wrap !important;
+        height: auto !important;
+        padding: 10px 14px !important;
+        gap: 8px !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+    }
+    /* Title stays full-width on its own line */
+    .dash-filter-inner > span { flex: 0 0 100%; }
+    /* Selects and button share the second row */
+    .dash-filter-inner > div  { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; width: 100%; }
+    .dash-filter-inner select { flex: 1 1 130px !important; min-width: unset !important; }
+    .dash-filter-inner a.btn-pill { flex: 1 1 auto !important; text-align: center; white-space: nowrap; }
 
     /* Stack split layout vertically */
     #dashLayout { flex-direction: column !important; height: auto !important; overflow: visible !important; }
