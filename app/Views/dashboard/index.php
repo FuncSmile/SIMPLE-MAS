@@ -4,17 +4,31 @@
 .complaint-item:hover { background:#f5f5f7; }
 .complaint-item:last-child { border-bottom:none; }
 .complaint-item.active { background:#f0f5ff; border-left:3px solid #0066cc; }
-#complaint-panel::-webkit-scrollbar { width:4px; }
-#complaint-panel::-webkit-scrollbar-track { background:#f5f5f7; }
-#complaint-panel::-webkit-scrollbar-thumb { background:#cccccc; border-radius:2px; }
+#listPane::-webkit-scrollbar { width:4px; }
+#listPane::-webkit-scrollbar-track { background:#f5f5f7; }
+#listPane::-webkit-scrollbar-thumb { background:#cccccc; border-radius:2px; }
 /* Leaflet popup override */
 .leaflet-popup-content-wrapper { border-radius:12px !important; padding:0 !important; }
 .leaflet-popup-content { margin:0 !important; }
+
+/* ── Responsive ── */
+@media (max-width: 767px) {
+    /* Filter strip: wrap on small screens */
+    .dash-filter-inner { flex-wrap: wrap !important; height: auto !important; padding: 10px 14px !important; gap: 8px !important; }
+    .dash-filter-inner select { min-width: unset !important; flex: 1 1 130px; }
+    .dash-filter-inner a.btn-pill { flex: 1 1 auto; text-align: center; }
+
+    /* Stack split layout vertically */
+    #dashLayout { flex-direction: column !important; height: auto !important; overflow: visible !important; }
+    #mapPane    { height: 45vh !important; flex: none !important; min-width: 0 !important; }
+    #listPane   { width: 100% !important; flex: none !important; height: 50vh !important; }
+    .dash-divider { display: none !important; }
+}
 </style>
 
 <!-- ── FILTER STRIP ── -->
 <div class="sub-nav-frosted">
-    <div style="max-width:100%; padding:0 20px; display:flex; align-items:center; justify-content:space-between; height:52px; gap:12px;">
+    <div class="dash-filter-inner" style="max-width:100%; padding:0 20px; display:flex; align-items:center; justify-content:space-between; height:52px; gap:12px;">
         <span style="font-size:17px; font-weight:600; line-height:1.19; letter-spacing:-0.374px; color:#1d1d1f; white-space:nowrap;">
             Peta Pengaduan
         </span>
@@ -42,18 +56,18 @@
 </div>
 
 <!-- ── SPLIT LAYOUT: map left + list right ── -->
-<div style="display:flex; height:calc(100vh - 96px); overflow:hidden;">
+<div id="dashLayout" style="display:flex; height:calc(100vh - 96px); overflow:hidden;">
 
     <!-- Map: left, takes remaining space -->
-    <div style="flex:1; min-width:0; position:relative;">
+    <div id="mapPane" style="flex:1; min-width:0; position:relative;">
         <div id="map" style="height:100%; width:100%;"></div>
     </div>
 
     <!-- Hairline divider -->
-    <div style="width:1px; background:#e0e0e0; flex-shrink:0;"></div>
+    <div class="dash-divider" style="width:1px; background:#e0e0e0; flex-shrink:0;"></div>
 
     <!-- Complaint list: right sidebar, fixed 360px, scrollable -->
-    <div id="complaint-panel" style="
+    <div id="listPane" style="
         width:360px; flex-shrink:0;
         overflow-y:auto;
         background:#ffffff;
