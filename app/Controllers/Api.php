@@ -43,43 +43,49 @@ class Api extends BaseController
         }
 
         $complaintId = (int) $this->request->getPost('complaint_id');
-        $userId      = $this->getUserId();
+        $userId      = (int) $this->getUserId();
 
-        if ($userId === null || $complaintId <= 0) {
+        if (! $userId || $complaintId <= 0) {
             return $this->response->setJSON(['success' => false, 'message' => 'Data tidak valid.']);
         }
 
-        $upvoteModel    = new UpvoteModel();
-        $complaintModel = new ComplaintModel();
+        $upvoteModel = new UpvoteModel();
 
         if ($upvoteModel->hasUpvoted($userId, $complaintId)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Anda sudah memberikan upvote.']);
         }
 
-        $db = \Config\Database::connect();
+        $db  = \Config\Database::connect();
+        $now = date('Y-m-d H:i:s');
+
         $db->transStart();
 
-        $upvoteModel->insert([
+        /* Use QueryBuilder directly to bypass Model field protection and timestamp magic */
+        $db->table('upvotes')->insert([
             'user_id'      => $userId,
             'complaint_id' => $complaintId,
+            'created_at'   => $now,
         ]);
 
-        $complaintModel->where('id', $complaintId)
+        $db->table('complaints')
+            ->where('id', $complaintId)
             ->set('upvotes', 'upvotes + 1', false)
+            ->set('updated_at', $now)
             ->update();
 
         $db->transComplete();
 
         if ($db->transStatus() === false) {
+            log_message('error', "Upvote failed: user={$userId} complaint={$complaintId}");
             return $this->response->setJSON(['success' => false, 'message' => 'Gagal memberikan upvote.']);
         }
 
-        $complaint = $complaintModel->find($complaintId);
+        $updated = $db->table('complaints')->where('id', $complaintId)->get()->getRowArray();
 
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Upvote berhasil!',
-            'upvotes' => $complaint['upvotes'],
+            'upvotes' => $updated['upvotes'] ?? 1,
         ]);
     }
 
