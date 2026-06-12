@@ -1,6 +1,10 @@
 <?php $GLOBALS['ci_no_footer'] = true; ?>
 <!-- ── ADMIN ANALYTICS ── -->
 <style>
+/* Containment fix: keeps Leaflet layers inside heatmap container's
+   stacking context so they don't overlap the sidebar (z-index 400). */
+#heatmapContainer { position: relative; z-index: 0; }
+
 @media (max-width: 767px) {
     #adminShell   { display: block !important; height: auto !important; overflow: visible !important; }
     #adminMain    { height: auto !important; overflow: visible !important; }

@@ -13,6 +13,11 @@
 .top-item:hover { background:#f5f5f7; padding:12px 8px; margin:0 -8px; }
 .top-item:last-child { border-bottom:none; }
 
+/* Containment fix: z-index:0 creates a stacking context so Leaflet's
+   internal layers (z-index 200-700) stay inside and can't overlap
+   the sidebar (z-index 400) or the sticky nav (z-index 800). */
+#adminMap { position: relative; z-index: 0; }
+
 /* ── Responsive ── */
 @media (max-width: 767px) {
     #adminShell { display: block !important; height: auto !important; overflow: visible !important; }
