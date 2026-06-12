@@ -2,6 +2,22 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
 
 <style>
+/* ── Landing page responsive overrides ── */
+@media (max-width: 767px) {
+    /* Hero: reduce bottom padding & button gap */
+    #hero-content { padding: 0 20px 48px !important; }
+    #hero-btns    { gap: 10px !important; }
+    #hero-btns a  { font-size: 15px !important; padding: 11px 22px !important; }
+
+    /* Sections: reduce padding */
+    .home-section { padding: 52px 0 !important; }
+    .home-inner   { padding: 0 20px !important; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+    #hero-content { padding: 0 28px 56px !important; }
+    .home-inner   { padding: 0 28px !important; }
+}
+</style>
 @keyframes scrollDot {
     0%,100% { transform:translateX(-50%) translateY(0); opacity:1; }
     50%      { transform:translateX(-50%) translateY(10px); opacity:0.3; }
@@ -59,7 +75,7 @@
     "></div>
 
     <!-- Content overlay — pointer-events:none so globe stays interactive -->
-    <div class="hero-text" style="
+    <div id="hero-content" class="hero-text" style="
         position:absolute; inset:0; z-index:10;
         display:flex; flex-direction:column;
         align-items:center; justify-content:flex-end;
@@ -89,7 +105,7 @@
         Bersama kita bangun lingkungan yang lebih baik.</p>
 
         <!-- Buttons: pointer-events:auto so they remain clickable -->
-        <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center; pointer-events:auto; margin-bottom:36px;">
+        <div id="hero-btns" style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center; pointer-events:auto; margin-bottom:36px;">
             <a href="/register" class="btn-pill" style="
                 font-size:17px; padding:13px 30px;
                 box-shadow:0 0 28px rgba(0,102,204,0.45);
@@ -303,8 +319,8 @@
 <!-- ═══════════════════════════════════════════════════════
      PROBLEM STATEMENT — white
      ═══════════════════════════════════════════════════════ -->
-<section style="background:#ffffff; padding:80px 0;">
-    <div style="max-width:980px; margin:0 auto; padding:0 40px;">
+<section class="home-section" style="background:#ffffff; padding:80px 0;">
+    <div class="home-inner" style="max-width:980px; margin:0 auto; padding:0 40px;">
 
         <p style="font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#0066cc; margin:0 0 12px;">
             Mengapa SIMPEL-MAS?
@@ -359,8 +375,8 @@
 <!-- ═══════════════════════════════════════════════════════
      SOLUTION FEATURES — parchment
      ═══════════════════════════════════════════════════════ -->
-<section style="background:#f5f5f7; padding:80px 0;">
-    <div style="max-width:980px; margin:0 auto; padding:0 40px;">
+<section class="home-section" style="background:#f5f5f7; padding:80px 0;">
+    <div class="home-inner" style="max-width:980px; margin:0 auto; padding:0 40px;">
 
         <p style="font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#0066cc; margin:0 0 12px; text-align:center;">
             Solusi
@@ -439,8 +455,8 @@
 <!-- ═══════════════════════════════════════════════════════
      USER ROLES — dark tile
      ═══════════════════════════════════════════════════════ -->
-<section style="background:#272729; padding:80px 0;">
-    <div style="max-width:980px; margin:0 auto; padding:0 40px;">
+<section class="home-section" style="background:#272729; padding:80px 0;">
+    <div class="home-inner" style="max-width:980px; margin:0 auto; padding:0 40px;">
 
         <p style="font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#6ba3e0; margin:0 0 12px; text-align:center;">
             Platform untuk Semua
@@ -531,8 +547,8 @@
 <!-- ═══════════════════════════════════════════════════════
      CTA — white
      ═══════════════════════════════════════════════════════ -->
-<section style="background:#ffffff; padding:80px 0;">
-    <div style="max-width:640px; margin:0 auto; padding:0 40px; text-align:center;">
+<section class="home-section" style="background:#ffffff; padding:80px 0;">
+    <div class="home-inner" style="max-width:640px; margin:0 auto; padding:0 40px; text-align:center;">
 
         <h2 style="font-size:clamp(32px,4vw,52px); font-weight:600; line-height:1.08; letter-spacing:-0.2px; color:#1d1d1f; margin:0 0 16px;">
             Mulai membuat perubahan hari ini.
