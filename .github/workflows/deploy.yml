@@ -1,0 +1,93 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]       # Ubah ke nama branch utama-mu jika beda
+  workflow_dispatch:       # Bisa trigger manual dari GitHub UI
+
+jobs:
+  deploy:
+    name: Deploy via Tailscale SSH
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ── 1. Checkout kode ──────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Join Tailscale network ─────────────────────────────────────
+      #       Runner mendapat node ephemeral → SSH ke server via 100.x.x.x
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret:    ${{ secrets.TS_OAUTH_SECRET }}
+          tags:            tag:ci
+
+      # ── 3. Verifikasi koneksi Tailscale ke server ─────────────────────
+      - name: Ping server
+        run: ping -c 3 ${{ secrets.DEPLOY_HOST }}
+
+      # ── 4. Deploy ─────────────────────────────────────────────────────
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host:        ${{ secrets.DEPLOY_HOST }}
+          username:    ${{ secrets.DEPLOY_USER }}
+          key:         ${{ secrets.DEPLOY_SSH_KEY }}
+          port:        22
+          script_stop: true
+          script: |
+            set -e
+
+            echo "──────────────────────────────────────"
+            echo " SIMPEL-MAS DEPLOYMENT"
+            echo " $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "──────────────────────────────────────"
+
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # ── Pull kode terbaru ────────────────────
+            echo "[1/5] Pulling latest code..."
+            git pull origin main
+
+            # ── Rebuild image PHP-FPM ────────────────
+            # Hanya rebuild service 'app', nginx & mysql tidak tersentuh
+            echo "[2/5] Rebuilding app image..."
+            docker compose build --no-cache app
+
+            # ── Ganti container app dengan image baru ─
+            # --force-recreate : paksa buat ulang container
+            # --no-deps        : jangan restart nginx & mysql
+            # -d               : background
+            echo "[3/5] Recreating app container..."
+            docker compose up -d --force-recreate --no-deps app
+
+            # Tunggu container healthy (maks 30 detik)
+            echo "      Waiting for container to be ready..."
+            timeout 30 sh -c '
+              until docker compose ps app | grep -q "Up"; do
+                sleep 2
+              done
+            '
+
+            # ── Composer install di dalam container ──
+            echo "[4/5] Running composer install..."
+            docker compose exec -T app composer install \
+              --no-dev \
+              --optimize-autoloader \
+              --no-interaction
+
+            # ── Migrasi & cache CI4 ──────────────────
+            echo "[5/5] Running migrations and clearing cache..."
+            docker compose exec -T app php spark migrate --all --no-interaction
+            docker compose exec -T app php spark cache:clear
+
+            # ── Fix file permissions di writable/ ────
+            docker compose exec -T app chmod -R 777 writable/
+
+            echo "──────────────────────────────────────"
+            echo " DEPLOY COMPLETE"
+            echo "──────────────────────────────────────"
+            docker compose ps
