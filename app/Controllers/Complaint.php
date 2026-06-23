@@ -25,7 +25,7 @@ class Complaint extends BaseController
             'description' => 'required|min_length[10]',
             'lat'         => 'required|numeric',
             'lng'         => 'required|numeric',
-            'photo_before' => 'uploaded[photo_before]|max_size[photo_before,5120]|is_image[photo_before]',
+            'photo_before' => 'uploaded[photo_before]|max_size[photo_before,2048]|is_image[photo_before]',
         ];
 
         if (! $this->validate($rules)) {

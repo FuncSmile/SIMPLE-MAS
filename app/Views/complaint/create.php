@@ -59,11 +59,18 @@
 
             <div>
                 <label style="display:block; font-size:14px; font-weight:600; letter-spacing:-0.224px; color:#1d1d1f; margin-bottom:6px;">
-                    Foto Kondisi <span style="font-weight:400; color:#7a7a7a;">(maks. 5MB)</span>
+                    Foto Kondisi <span style="font-weight:400; color:#7a7a7a;">(maks. 2MB, akan dikompres otomatis)</span>
                 </label>
-                <input type="file" name="photo_before" accept="image/*" required class="input-field" style="padding:8px 14px;">
+                <input type="file" name="photo_before" id="photoInput" accept="image/*" required class="input-field" style="padding:8px 14px;">
+                <div id="photoPreview" style="display:none; margin-top:8px; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; background:#fafafc;">
+                    <img id="photoPreviewImg" style="width:100%; height:auto; display:block; max-height:300px; object-fit:contain; background:#f5f5f7;">
+                    <div style="padding:8px 12px; font-size:12px; color:#7a7a7a; letter-spacing:-0.12px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e0e0e0;">
+                        <span id="photoSizeInfo"></span>
+                        <span id="photoCompressInfo" style="color:#10b981; font-weight:600;"></span>
+                    </div>
+                </div>
                 <p style="font-size:12px; color:#7a7a7a; letter-spacing:-0.12px; margin:6px 0 0;">
-                    Unggah foto kondisi yang menunjukkan masalah.
+                    Unggah foto kondisi yang menunjukkan masalah. Foto akan dikompres otomatis agar cepat diunggah.
                 </p>
             </div>
 
@@ -134,4 +141,136 @@ if (navigator.geolocation) {
 }
 
 previewMap.on('click', function(e) { setLocation(e.latlng.lat, e.latlng.lng); });
+
+/* ── Image compression ── */
+const MAX_SIZE_MB = 2;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+const MAX_DIM = 1920;
+const COMPRESS_QUALITY = 0.7;
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(2) + ' MB';
+}
+
+function compressImage(file) {
+    return new Promise((resolve, reject) => {
+        if (!file.type.startsWith('image/')) {
+            reject(new Error('File harus berupa gambar.'));
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                let w = img.width, h = img.height;
+
+                if (w > MAX_DIM || h > MAX_DIM) {
+                    const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, w, h);
+
+                canvas.toBlob(function (blob) {
+                    if (!blob) {
+                        reject(new Error('Gagal mengompres gambar.'));
+                        return;
+                    }
+                    const compressedFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+                    resolve({ file: compressedFile, originalSize: file.size, compressedSize: blob.size });
+                }, 'image/jpeg', COMPRESS_QUALITY);
+            };
+            img.onerror = function () { reject(new Error('Gagal memuat gambar.')); };
+            img.src = e.target.result;
+        };
+        reader.onerror = function () { reject(new Error('Gagal membaca file.')); };
+        reader.readAsDataURL(file);
+    });
+}
+
+function updatePhotoPreview(fileUrl, originalSize, compressedSize) {
+    const preview = document.getElementById('photoPreview');
+    const img = document.getElementById('photoPreviewImg');
+    const sizeInfo = document.getElementById('photoSizeInfo');
+    const compressInfo = document.getElementById('photoCompressInfo');
+
+    preview.style.display = 'block';
+    img.src = fileUrl;
+
+    sizeInfo.textContent = 'Ukuran asli: ' + formatBytes(originalSize);
+
+    if (compressedSize) {
+        const saved = originalSize - compressedSize;
+        const pct = originalSize > 0 ? Math.round((1 - compressedSize / originalSize) * 100) : 0;
+        compressInfo.textContent = 'Terkompres: ' + formatBytes(compressedSize) + ' (' + pct + '% lebih kecil)';
+    } else {
+        compressInfo.textContent = 'Ukuran: ' + formatBytes(originalSize);
+    }
+}
+
+document.getElementById('photoInput').addEventListener('change', async function () {
+    const file = this.files[0];
+    const submitBtn = document.getElementById('submitBtn');
+    const preview = document.getElementById('photoPreview');
+    const compressInfo = document.getElementById('photoCompressInfo');
+
+    preview.style.display = 'none';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Kirim Pengaduan';
+
+    if (!file) return;
+
+    if (file.size > MAX_SIZE_BYTES) {
+        alert('Ukuran foto maksimal ' + MAX_SIZE_MB + 'MB. File Anda: ' + formatBytes(file.size));
+        this.value = '';
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Mengompres foto...';
+
+    try {
+        const result = await compressImage(file);
+        const compressedFile = result.file;
+
+        if (compressedFile.size > MAX_SIZE_BYTES) {
+            alert('Foto setelah kompresi masih melebihi ' + MAX_SIZE_MB + 'MB. Silakan pilih foto dengan resolusi lebih rendah.');
+            this.value = '';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Kirim Pengaduan';
+            return;
+        }
+
+        const dt = new DataTransfer();
+        dt.items.add(compressedFile);
+        this.files = dt.files;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            updatePhotoPreview(e.target.result, result.originalSize, result.compressedSize);
+        };
+        reader.readAsDataURL(compressedFile);
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Kirim Pengaduan';
+    } catch (err) {
+        alert(err.message || 'Gagal memproses foto.');
+        this.value = '';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Kirim Pengaduan';
+    }
+});
 </script>
